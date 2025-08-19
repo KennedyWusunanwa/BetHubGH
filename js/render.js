@@ -36,6 +36,13 @@ export function renderHeader(active=""){
     </div>
   ` : `<a class="btn" href="connect.html">${WalletIcon()} Connect</a>`;
 
+  const brandHTML = `
+    <a href="index.html" class="brand" aria-label="Bet Hub GH — back to Home">
+      ${Logo()}
+      <div>Bet Hub GH <span class="tag">Prototype</span></div>
+    </a>
+  `;
+
   const el = $(".header");
   if (!el) return; // safety if a page is missing the header tag
 
@@ -46,10 +53,7 @@ export function renderHeader(active=""){
           <path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
         </svg>
       </button>
-      <div class="brand">
-        ${Logo()}
-        <div>Bet Hub GH <span class="tag">Prototype</span></div>
-      </div>
+      ${brandHTML}
       <nav class="nav primary">${nav}</nav>
       <div class="spacer"></div>
       <a href="dashboard.html#activity" title="Notifications" id="bell">🔔</a>
@@ -67,6 +71,10 @@ export function renderHeader(active=""){
       </div>
     </nav>
   `;
+
+  // Make brand click close the mobile menu
+  const brandLink = document.querySelector(".brand");
+  brandLink?.addEventListener("click", ()=> document.body.classList.remove("mobile-open"));
 
   // Logout (desktop + mobile)
   const logoutBtn = $("#btn-logout");
