@@ -24,7 +24,6 @@ export function renderHeader(active=""){
     ["index.html","Home"],["create.html","Create"],["dashboard.html","Dashboard"],
     ["disputes.html","Disputes"],["how-it-works.html","How it works"],["terms.html","Terms"]
   ];
-
   const nav = navLinks.map(([href,label]) =>
     `<a href="${href}" class="${active===label?'active':''}">${label}</a>`
   ).join("");
@@ -38,6 +37,8 @@ export function renderHeader(active=""){
   ` : `<a class="btn" href="connect.html">${WalletIcon()} Connect</a>`;
 
   const el = $(".header");
+  if (!el) return; // safety if a page is missing the header tag
+
   el.innerHTML = `
     <div class="header-inner container">
       <button class="menu-toggle" id="menuBtn" aria-label="Open menu" aria-expanded="false" aria-controls="mobileNav">
@@ -67,7 +68,7 @@ export function renderHeader(active=""){
     </nav>
   `;
 
-  // Logout buttons
+  // Logout (desktop + mobile)
   const logoutBtn = $("#btn-logout");
   const logoutBtnM = $("#btn-logout-m");
   [logoutBtn, logoutBtnM].forEach(b => b && b.addEventListener("click", ()=>{
@@ -110,7 +111,9 @@ export function renderHeader(active=""){
 }
 
 export function renderFooter(){
-  $(".footer").innerHTML = `
+  const f = $(".footer");
+  if (!f) return;
+  f.innerHTML = `
     <div class="footer-inner container">
       <div>© ${new Date().getFullYear()} Bet Hub GH. Demo only — not financial advice.</div>
       <div>Built for MVP prototyping. No real funds. Contact: hello@bethubgh.local</div>
@@ -118,14 +121,14 @@ export function renderFooter(){
 }
 
 export function betCard(b){
-  const sides = b.participants.map(p=>p.side).join(" vs ");
-  const partCount = b.participants.length;
-  const status = b.status;
+  const sides = (b.participants||[]).map(p=>p.side).join(" vs ");
+  const partCount = (b.participants||[]).length;
+  const status = b.status || "OPEN";
   return `
     <article class="card">
       <div class="row" style="justify-content:space-between;align-items:center">
         <div class="row" style="align-items:center;gap:10px">
-          <span class="badge">#${b.id.slice(-5)}</span>
+          <span class="badge">#${(b.id||"").toString().slice(-5)}</span>
           <strong>${b.type} • ${sides || '—'}</strong>
         </div>
         <span class="badge">${status}</span>
