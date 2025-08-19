@@ -12,48 +12,100 @@ const Logo = () => `
 </svg>`;
 
 const WalletIcon = () => `
-<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M2 7h18a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H2V7z" stroke="currentColor" stroke-width="1.6"/><path d="M2 7V5a2 2 0 0 1 2-2h12" stroke="currentColor" stroke-width="1.6"/><circle cx="18" cy="12" r="1.3" fill="currentColor"/></svg>`;
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+  <path d="M2 7h18a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H2V7z" stroke="currentColor" stroke-width="1.6"/>
+  <path d="M2 7V5a2 2 0 0 1 2-2h12" stroke="currentColor" stroke-width="1.6"/>
+  <circle cx="18" cy="12" r="1.3" fill="currentColor"/>
+</svg>`;
 
 export function renderHeader(active=""){
   const user = currentUser();
-  const nav = [
+  const navLinks = [
     ["index.html","Home"],["create.html","Create"],["dashboard.html","Dashboard"],
     ["disputes.html","Disputes"],["how-it-works.html","How it works"],["terms.html","Terms"]
-  ].map(([href,label])=>`<a href="${href}" class="${active===label?'active':''}">${label}</a>`).join("");
+  ];
+
+  const nav = navLinks.map(([href,label]) =>
+    `<a href="${href}" class="${active===label?'active':''}">${label}</a>`
+  ).join("");
 
   const userUI = user ? `
-    <div class="row" style="align-items:center;gap:8px">
-      <span class="badge">${WalletIcon()} ${user.username} • ${fmtMoney(user.balance)}</span>
-      <a class="btn ghost" href="connect.html">Switch</a>
+    <div class="userbar">
+      <span class="badge wallet truncate">${WalletIcon()} ${user.username} • ${fmtMoney(user.balance)}</span>
+      <a class="btn ghost" href="connect.html" aria-label="Switch profile">Switch</a>
       <button class="btn secondary" id="btn-logout">Logout</button>
     </div>
-  ` : `<a class="btn" href="connect.html">${WalletIcon()} Connect Wallet</a>`;
+  ` : `<a class="btn" href="connect.html">${WalletIcon()} Connect</a>`;
 
   const el = $(".header");
   el.innerHTML = `
-  <div class="header-inner container">
-    <div class="brand">
-      ${Logo()}
-      <div>
-        Bet Hub GH <span class="tag">Prototype</span>
+    <div class="header-inner container">
+      <button class="menu-toggle" id="menuBtn" aria-label="Open menu" aria-expanded="false" aria-controls="mobileNav">
+        <svg class="menu-icon" viewBox="0 0 24 24" fill="none">
+          <path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </button>
+      <div class="brand">
+        ${Logo()}
+        <div>Bet Hub GH <span class="tag">Prototype</span></div>
       </div>
-    </div>
-    <nav class="nav">${nav}</nav>
-    <div class="spacer"></div>
-    <div class="nav">
-      <a href="dashboard.html#activity" title="Notifications">🔔</a>
+      <nav class="nav primary">${nav}</nav>
+      <div class="spacer"></div>
+      <a href="dashboard.html#activity" title="Notifications" id="bell">🔔</a>
       ${userUI}
     </div>
-  </div>`;
+    <nav id="mobileNav" class="mobile-nav">
+      ${nav}
+      <hr class="sep" style="margin:8px 0">
+      <div>
+        ${user ? `
+          <div class="badge wallet" style="margin-bottom:8px">${user.username} • ${fmtMoney(user.balance)}</div>
+          <a class="btn ghost" href="connect.html" style="margin-right:6px">Switch</a>
+          <button class="btn secondary" id="btn-logout-m">Logout</button>
+        ` : `<a class="btn" href="connect.html">${WalletIcon()} Connect</a>`}
+      </div>
+    </nav>
+  `;
 
-  const btn = $("#btn-logout"); if (btn) btn.addEventListener("click", ()=>{ logout(); location.href="index.html"; });
+  // Logout buttons
+  const logoutBtn = $("#btn-logout");
+  const logoutBtnM = $("#btn-logout-m");
+  [logoutBtn, logoutBtnM].forEach(b => b && b.addEventListener("click", ()=>{
+    logout(); location.href="index.html";
+  }));
 
-  // tiny notification dot
-  const bell = $(`a[href="dashboard.html#activity"]`);
+  // Notification dot
+  const bell = $("#bell");
   if (bell && user) {
     const unread = myNotifications().some(n=>!n.read);
     if (unread) bell.innerHTML = "🔔•";
     bell.addEventListener("click", ()=> markAllRead());
+  }
+
+  // Mobile menu toggle
+  const menuBtn = $("#menuBtn");
+  const mobileNav = $("#mobileNav");
+  if (menuBtn && mobileNav){
+    const closeMenu = () => {
+      document.body.classList.remove("mobile-open");
+      menuBtn.setAttribute("aria-expanded","false");
+    };
+    const openMenu = () => {
+      document.body.classList.add("mobile-open");
+      menuBtn.setAttribute("aria-expanded","true");
+    };
+    menuBtn.addEventListener("click", ()=>{
+      const open = document.body.classList.contains("mobile-open");
+      open ? closeMenu() : openMenu();
+    });
+    // Close when clicking a link
+    mobileNav.addEventListener("click", (e)=>{
+      if (e.target.tagName === "A") closeMenu();
+    });
+    // Close on resize to desktop
+    window.addEventListener("resize", ()=>{
+      if (window.innerWidth > 820) closeMenu();
+    });
   }
 }
 
