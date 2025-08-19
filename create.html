@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Create • Bet Hub GH</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+<header class="header"></header>
+<main class="container">
+  <h2>Create a bet</h2>
+  <form id="create-form" class="card">
+    <div class="row">
+      <div class="field" style="flex:1;min-width:220px">
+        <label>Type</label>
+        <select name="type" class="input" id="type">
+          <option value="YESNO">Yes / No</option>
+          <option value="H2H">Head-to-Head (A vs B)</option>
+        </select>
+      </div>
+      <div class="field" style="flex:2;min-width:240px">
+        <label>Outcome description</label>
+        <input name="outcome" class="input" placeholder="e.g., 'Team A beats Team B by full-time'"/>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="field"><label>Stake (GHC)</label><input name="stake" class="input" type="number" min="1" value="50"/></div>
+      <div class="field"><label>Expires in</label>
+        <select name="expires" class="input">
+          <option value="15">15 minutes</option><option value="30">30 minutes</option><option value="60">1 hour</option><option value="120">2 hours</option>
+        </select>
+      </div>
+      <div class="field"><label>Resolver</label>
+        <select name="resolver" class="input"><option value="AUTO">Auto (random)</option><option value="ADMIN">Admin (manual)</option></select>
+      </div>
+    </div>
+
+    <div id="yesno" class="row">
+      <div class="field"><label>Your side (Yes/No)</label>
+        <select name="sideYesNo" class="input"><option>YES</option><option>NO</option></select>
+      </div>
+    </div>
+    <div id="h2h" class="row" style="display:none">
+      <div class="field"><label>Your side (A/B)</label>
+        <select name="sideH2H" class="input"><option>A</option><option>B</option></select>
+      </div>
+    </div>
+
+    <div class="row" style="justify-content:space-between">
+      <button class="btn" type="submit">Create Bet</button>
+      <div class="badge">1% fee on payouts goes to demo treasury</div>
+    </div>
+    <div id="create-out" style="margin-top:10px"></div>
+  </form>
+</main>
+<footer class="footer"></footer>
+
+<script type="module" src="js/app.js"></script>
+<script type="module">
+  const typeSel = document.querySelector("#type");
+  const yesno = document.querySelector("#yesno");
+  const h2h = document.querySelector("#h2h");
+  typeSel.addEventListener("change", ()=>{
+    const v = typeSel.value;
+    yesno.style.display = v==="YESNO"?"flex":"none";
+    h2h.style.display = v==="H2H"?"flex":"none";
+  });
+</script>
+<script type="module" src="js/pages/create.js"></script>
+</body>
+</html>
